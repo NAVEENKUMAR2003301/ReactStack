@@ -1,0 +1,131 @@
+import { Component, useState } from 'react';
+import PageHeader from '../../components/PageHeader';
+import PageNavFooter from '../../components/PageNavFooter';
+import CodeBlock from '../../components/CodeBlock';
+import DemoCard from '../../components/DemoCard';
+import Callout from '../../components/Callout';
+import Quiz from '../../components/Quiz';
+import { TOPICS } from '../../data/topics';
+
+const topic = TOPICS.find((t) => t.slug === 'error-boundaries');
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="card" style={{ borderColor: 'var(--danger)', background: 'var(--danger-soft)', color: 'var(--danger)' }}>
+          <strong>Something went wrong in this widget.</strong>
+          <p style={{ margin: '6px 0 0' }}>The rest of the page is unaffected.</p>
+          <button className="btn btn--sm" style={{ marginTop: 8 }} onClick={() => this.setState({ hasError: false })}>
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function BuggyWidget({ crash }) {
+  if (crash) {
+    throw new Error('Simulated render crash');
+  }
+  return <div className="card">✅ Widget rendering fine.</div>;
+}
+
+function ErrorBoundaryDemo() {
+  const [crash, setCrash] = useState(false);
+  return (
+    <>
+      <button className="btn btn--primary" onClick={() => setCrash(true)}>
+        💥 Trigger a render crash
+      </button>
+      <ErrorBoundary key={crash}>
+        <BuggyWidget crash={crash} />
+      </ErrorBoundary>
+    </>
+  );
+}
+
+export default function ErrorBoundaries() {
+  return (
+    <article>
+      <PageHeader topic={topic}>
+        An error boundary is a component that catches JavaScript errors thrown during
+        rendering in its children, logs them, and shows a fallback UI instead of a blank
+        crashed page.
+      </PageHeader>
+
+      <p>
+        By default, an uncaught error anywhere in the render tree unmounts the{' '}
+        <strong>entire</strong> React app — one broken widget takes down the whole page.
+        Error boundaries contain the blast radius: wrap a risky subtree, and if it
+        throws, only that subtree is replaced with a fallback, while the rest of the app
+        keeps working.
+      </p>
+
+      <CodeBlock
+        title="A minimal error boundary"
+        code={`class ErrorBoundary extends Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <p>Something went wrong.</p>;
+    }
+    return this.props.children;
+  }
+}
+
+<ErrorBoundary>
+  <RiskyWidget />
+</ErrorBoundary>`}
+      />
+
+      <Callout type="warn" title="Error boundaries must be class components">
+        As of today, only class components can be error boundaries — there is no{' '}
+        <code>useErrorBoundary</code> hook, because the underlying lifecycle method,{' '}
+        <code>getDerivedStateFromError</code>, has no hook equivalent. In practice, most
+        teams write this one class once and reuse it everywhere, rather than writing
+        classes elsewhere in the app.
+      </Callout>
+
+      <h2>What they do and don't catch</h2>
+      <ul>
+        <li>✅ Errors thrown while rendering a component.</li>
+        <li>✅ Errors in lifecycle methods and constructors of the tree below them.</li>
+        <li>❌ Errors inside event handlers (use a regular try/catch there).</li>
+        <li>❌ Errors in asynchronous code (setTimeout, fetch callbacks) — again, try/catch.</li>
+      </ul>
+
+      <h2>Try it</h2>
+      <DemoCard label="A contained crash">
+        <ErrorBoundaryDemo />
+      </DemoCard>
+
+      <Quiz
+        question="A fetch() callback throws an error. Will a wrapping ErrorBoundary catch it?"
+        options={[
+          'Yes, error boundaries catch every kind of error anywhere below them',
+          'No — error boundaries only catch errors thrown during rendering, not inside async callbacks',
+          'Only if the fetch happens inside useEffect',
+        ]}
+        correctIndex={1}
+        explanation="error boundaries hook into React's render process specifically — an error thrown later, inside an async callback, happens outside of any render call, so React never sees it; that needs a manual try/catch instead."
+      />
+
+      <PageNavFooter slug={topic.slug} />
+    </article>
+  );
+}

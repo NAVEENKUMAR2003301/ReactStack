@@ -1,0 +1,211 @@
+@import './styles/layout.css';
+@import './styles/components.css';
+
+/* ============================================================
+   ReactStack — design tokens
+   A small, consistent system: 8px spacing scale, one accent hue,
+   AA-contrast text colors in both themes, one type scale.
+   ============================================================ */
+
+:root {
+  --bg: #ffffff;
+  --bg-elevated: #f8f7fb;
+  --bg-inset: #f2f1ea;
+  --bg-hover: #efedf5;
+
+  --text: #322d3a;
+  --text-muted: #6b6375;
+  --text-faint: #948d9c;
+  --heading: #0e0b16;
+
+  --border: #e6e4ea;
+  --border-strong: #d6d3dc;
+
+  --accent: #7c3aed;
+  --accent-strong: #6d28d9;
+  --accent-soft: rgba(124, 58, 237, 0.1);
+  --accent-border: rgba(124, 58, 237, 0.35);
+  --on-accent: #ffffff;
+
+  --success: #15803d;
+  --success-soft: rgba(21, 128, 61, 0.1);
+  --warning: #b45309;
+  --warning-soft: rgba(180, 83, 9, 0.12);
+  --danger: #b91c1c;
+  --danger-soft: rgba(185, 28, 28, 0.1);
+
+  --shadow-sm: 0 1px 2px rgba(20, 14, 30, 0.06);
+  --shadow-md: 0 8px 24px -8px rgba(20, 14, 30, 0.18);
+  --shadow-lg: 0 24px 48px -16px rgba(20, 14, 30, 0.28);
+
+  --focus-ring: 0 0 0 3px rgba(124, 58, 237, 0.45);
+
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --sidebar-w: 272px;
+  --topbar-h: 60px;
+  --content-w: 780px;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e0d13;
+  --bg-elevated: #161520;
+  --bg-inset: #1b1a26;
+  --bg-hover: #211f2d;
+
+  --text: #d7d4e0;
+  --text-muted: #9a94a8;
+  --text-faint: #6f6a7c;
+  --heading: #f5f3fa;
+
+  --border: #29273580;
+  --border-strong: #37354444;
+
+  --accent: #a78bfa;
+  --accent-strong: #c4b5fd;
+  --accent-soft: rgba(167, 139, 250, 0.14);
+  --accent-border: rgba(167, 139, 250, 0.4);
+  --on-accent: #1a1327;
+
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.12);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- reset & base ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.7 var(--sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--heading);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-3);
+}
+
+h1 {
+  font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.75rem);
+}
+h2 {
+  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.75rem);
+  margin-top: var(--space-7);
+}
+h3 {
+  font-size: 1.2rem;
+  margin-top: var(--space-5);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+ul,
+ol {
+  padding-left: 1.3em;
+  margin: 0 0 var(--space-4);
+}
+li {
+  margin-bottom: var(--space-2);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--bg-inset);
+  color: var(--accent-strong);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* ---------- scrollbar ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
