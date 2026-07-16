@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -106,9 +107,41 @@ export default function Routing() {
         piece of state, matched against a pattern to decide which mini-component to
         render, the same job a real Router does with the browser's actual URL.
       </p>
-      <DemoCard label="A tiny 2-route app">
+      <DemoCard
+        label="A tiny 2-route app"
+        code={`// simplified simulation — a real app uses <Routes>/<Route> from
+// react-router-dom instead of this hand-rolled path matcher
+function RoutingDemo() {
+  const [path, setPath] = useState('/');
+  const productMatch = path.match(/^\\/product\\/(.+)$/);
+
+  return productMatch ? (
+    <MiniProduct id={productMatch[1]} onNavigate={setPath} />
+  ) : (
+    <MiniHome onNavigate={setPath} />
+  );
+}`}
+      >
         <RoutingDemo />
       </DemoCard>
+
+      <RealWorld title="An e-commerce site's page structure">
+        <p>
+          Home, a product page, a cart, and checkout are four different URLs a user can
+          bookmark or share, but they're all one React app — this is the exact routing
+          table behind a typical storefront.
+        </p>
+        <CodeBlock
+          title="AppRoutes.jsx"
+          code={`<Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/products/:id" element={<ProductPage />} />
+  <Route path="/cart" element={<Cart />} />
+  <Route path="/checkout" element={<Checkout />} />
+  <Route path="*" element={<NotFound />} />
+</Routes>`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why does clicking a <Link> feel instant, with no full-page flash?"

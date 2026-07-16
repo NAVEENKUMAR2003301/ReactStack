@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -110,9 +111,48 @@ export default function ErrorBoundaries() {
       </ul>
 
       <h2>Try it</h2>
-      <DemoCard label="A contained crash">
+      <DemoCard
+        label="A contained crash"
+        code={`function BuggyWidget({ crash }) {
+  if (crash) throw new Error('Simulated render crash');
+  return <div>✅ Widget rendering fine.</div>;
+}
+
+function ErrorBoundaryDemo() {
+  const [crash, setCrash] = useState(false);
+  return (
+    <>
+      <button onClick={() => setCrash(true)}>💥 Trigger a render crash</button>
+      <ErrorBoundary key={crash}>
+        <BuggyWidget crash={crash} />
+      </ErrorBoundary>
+    </>
+  );
+}`}
+      >
         <ErrorBoundaryDemo />
       </DemoCard>
+
+      <RealWorld title="A broken chart widget shouldn't take down the dashboard">
+        <p>
+          A dashboard often embeds several independent widgets — a chart library, a map,
+          a third-party embed — any of which can throw on bad data. Wrapping each widget
+          in its own error boundary means one broken chart shows a small "couldn't load"
+          message while the rest of the dashboard keeps working normally.
+        </p>
+        <CodeBlock
+          title="Dashboard.jsx"
+          code={`function Dashboard() {
+  return (
+    <div className="widget-grid">
+      <ErrorBoundary><RevenueChart /></ErrorBoundary>
+      <ErrorBoundary><UserMap /></ErrorBoundary>
+      <ErrorBoundary><ActivityFeed /></ErrorBoundary>
+    </div>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="A fetch() callback throws an error. Will a wrapping ErrorBoundary catch it?"

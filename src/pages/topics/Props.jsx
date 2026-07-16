@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -97,9 +98,47 @@ export default function Props() {
         The buttons live in the parent and update a piece of state; that state flows
         down into both <code>PriceTag</code> cards as the <code>amount</code> prop.
       </p>
-      <DemoCard label="Same component, different props">
+      <DemoCard
+        label="Same component, different props"
+        code={`function PropsDemo() {
+  const [amount, setAmount] = useState(42);
+  return (
+    <>
+      <PriceTag label="Plan A" amount={amount} />
+      <PriceTag label="Plan B" amount={amount * 2} currency="€" />
+
+      <button onClick={() => setAmount((a) => Math.max(0, a - 5))}>− 5</button>
+      <button onClick={() => setAmount((a) => a + 5)}>+ 5</button>
+    </>
+  );
+}`}
+      >
         <PropsDemo />
       </DemoCard>
+
+      <RealWorld title="One Button component, every button on the site">
+        <p>
+          Nearly every design system (Stripe, Shopify's Polaris, your own company's app)
+          has one <code>Button</code> component whose look changes entirely through
+          props — a <code>variant</code> for color, a <code>size</code>, a{' '}
+          <code>disabled</code> flag — instead of dozens of near-duplicate button
+          components.
+        </p>
+        <CodeBlock
+          title="Button.jsx"
+          code={`function Button({ variant = 'primary', size = 'md', children, ...rest }) {
+  return (
+    <button className={\`btn btn-\${variant} btn-\${size}\`} {...rest}>
+      {children}
+    </button>
+  );
+}
+
+<Button variant="danger" size="sm" onClick={deleteAccount}>
+  Delete account
+</Button>`}
+        />
+      </RealWorld>
 
       <Quiz
         question="A child component wants to change a value it received as a prop. What should it do?"

@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -108,9 +109,42 @@ export default function Performance() {
         <code>slowIsPrime</code> is deliberately slowed down. Toggle memoization off and
         watch re-renders (that don't even change <code>n</code>) get slow again.
       </p>
-      <DemoCard label="Memoized vs. unmemoized computation">
+      <DemoCard
+        label="Memoized vs. unmemoized computation"
+        code={`// the essential pattern (this demo also lets you toggle memoization
+// off, which needs an extra trick to stay hooks-rule-compliant —
+// see the full source for that detail):
+function PerformanceDemo() {
+  const [n, setN] = useState(97);
+  const isPrime = useMemo(() => slowIsPrime(n), [n]);
+
+  return <p>{n} is {isPrime ? '' : 'not '}prime</p>;
+}`}
+      >
         <PerformanceDemo />
       </DemoCard>
+
+      <RealWorld title="Filtering a large data table without lag">
+        <p>
+          A dashboard with thousands of rows, a search box, and a sort toggle can easily
+          spend 50ms+ re-filtering and re-sorting on every unrelated re-render (like the
+          sidebar collapsing). Wrapping that computation in <code>useMemo</code> keyed on
+          the actual inputs — the raw data, the query, the sort key — means it only
+          redoes the work when one of those genuinely changes.
+        </p>
+        <CodeBlock
+          title="DataTable.jsx"
+          code={`function DataTable({ rows, query, sortKey }) {
+  const visibleRows = useMemo(() => {
+    return rows
+      .filter((r) => r.name.includes(query))
+      .sort((a, b) => a[sortKey] - b[sortKey]);
+  }, [rows, query, sortKey]);
+
+  return <Table rows={visibleRows} />;
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="When is useMemo(() => computeThing(x), [x]) actually worth adding?"

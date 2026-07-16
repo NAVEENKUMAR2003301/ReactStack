@@ -5,6 +5,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -113,9 +114,51 @@ export default function Lifecycle() {
 
       <h2>Try it</h2>
       <p>Each click triggers all three phases — watch the effect's log line always appear after the click resolves.</p>
-      <DemoCard label="Render → commit → effect, observed">
+      <DemoCard
+        label="Render → commit → effect, observed"
+        code={[
+          'function LifecycleDemo() {',
+          '  const [count, setCount] = useState(0);',
+          '  const [log, setLog] = useState([]);',
+          '',
+          '  useEffect(() => {',
+          "    setLog((l) => [...l, `commit #${count}: effect ran, DOM is updated`]);",
+          '  }, [count]); // runs after every commit caused by a count change',
+          '',
+          '  return (',
+          '    <>',
+          '      <button onClick={() => setCount((c) => c + 1)}>Trigger render</button>',
+          '      {log.map((entry, i) => <div key={i}>{entry}</div>)}',
+          '    </>',
+          '  );',
+          '}',
+        ].join('\n')}
+      >
         <LifecycleDemo />
       </DemoCard>
+
+      <RealWorld title="Sizing a chart canvas to its container">
+        <p>
+          A charting library often needs the pixel width of its container to draw
+          correctly — but that width doesn't exist until after the DOM commits. Reading{' '}
+          <code>getBoundingClientRect()</code> inside an effect (never during render)
+          guarantees the container has actually been painted first.
+        </p>
+        <CodeBlock
+          title="ResponsiveChart.jsx"
+          code={`function ResponsiveChart() {
+  const containerRef = useRef(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    // safe here — the DOM has already committed by this point
+    setWidth(containerRef.current.getBoundingClientRect().width);
+  }, []);
+
+  return <div ref={containerRef}><Chart width={width} /></div>;
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why shouldn't you mutate the DOM directly inside a component's render body (not in useEffect)?"

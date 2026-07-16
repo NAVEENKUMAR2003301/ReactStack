@@ -5,6 +5,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -100,9 +101,53 @@ function Welcome() {
 
       <h2>Try it</h2>
       <p>Edit the name below and watch the JSX expression re-evaluate on every keystroke.</p>
-      <DemoCard label="Interactive JSX">
+      <DemoCard
+        label="Interactive JSX"
+        code={`function GreetingDemo() {
+  const [name, setName] = useState('friend');
+  const isLongName = name.length > 8;
+
+  return (
+    <>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Type a name…"
+      />
+      <h3>
+        Hello, {name || 'stranger'}! {isLongName && '👋 nice long name'}
+      </h3>
+    </>
+  );
+}`}
+      >
         <GreetingDemo />
       </DemoCard>
+
+      <RealWorld title="Product cards on a shopping site">
+        <p>
+          Every product card on a site like Amazon mixes markup with live data the same
+          way: a title, a price formatted from a number, a "Sold out" badge that only
+          shows up sometimes, and a star rating built from a loop. None of that needs a
+          separate templating language — it's the same JSX and curly-brace expressions
+          you just saw, just with real data in place of a name.
+        </p>
+        <CodeBlock
+          title="ProductCard.jsx"
+          code={`function ProductCard({ product }) {
+  const { name, price, rating, inStock } = product;
+
+  return (
+    <div className="product-card">
+      <h3>{name}</h3>
+      <p>\${price.toFixed(2)}</p>
+      {!inStock && <span className="badge">Sold out</span>}
+      <p>{'⭐'.repeat(Math.round(rating))}</p>
+    </div>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Which of these is valid JSX?"

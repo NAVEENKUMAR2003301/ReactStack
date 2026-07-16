@@ -5,6 +5,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -107,9 +108,61 @@ function DeepButton() {
         <code>MiddleWrapper</code> never receives or forwards an <code>accent</code> prop
         — <code>DeepButton</code> reads it straight from context.
       </p>
-      <DemoCard label="Context skipping a level">
+      <DemoCard
+        label="Context skipping a level"
+        code={`const AccentContext = createContext('purple');
+
+function DeepButton() {
+  const accent = useContext(AccentContext);
+  return <button style={{ color: accent }}>I read context, 3 levels deep</button>;
+}
+
+function MiddleWrapper() {
+  return <DeepButton />; // never touches "accent" at all
+}
+
+function ContextDemo() {
+  const [accent, setAccent] = useState('purple');
+  return (
+    <AccentContext.Provider value={accent}>
+      <button onClick={() => setAccent('pink')}>pink</button>
+      <MiddleWrapper />
+    </AccentContext.Provider>
+  );
+}`}
+      >
         <ContextDemo />
       </DemoCard>
+
+      <RealWorld title="Knowing who's logged in, anywhere in the app">
+        <p>
+          The most common real context is <strong>auth</strong>: an{' '}
+          <code>AuthContext</code> set once near the root, holding the current user.
+          A checkout button 10 components deep, a settings page, and the navbar avatar
+          can all read the same <code>user</code> without any of the components between
+          them needing to know it exists — this is exactly how ReactStack's own dark/light
+          theme works, too.
+        </p>
+        <CodeBlock
+          title="AuthContext.jsx"
+          code={`const AuthContext = createContext(null);
+
+function App() {
+  const [user, setUser] = useState(null);
+  return (
+    <AuthContext.Provider value={user}>
+      <Navbar />
+      <Routes>{/* ... */}</Routes>
+    </AuthContext.Provider>
+  );
+}
+
+function CheckoutButton() {
+  const user = useContext(AuthContext);
+  return user ? <button>Pay now</button> : <button>Log in to pay</button>;
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why use Context instead of just passing accent as a prop through MiddleWrapper?"

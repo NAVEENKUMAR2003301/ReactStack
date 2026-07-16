@@ -27,6 +27,48 @@
   background: var(--danger-soft);
 }
 
+/* ---------- real-world example ---------- */
+.realworld {
+  margin: var(--space-6) 0;
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-lg);
+  background: var(--info-soft);
+  padding: var(--space-5);
+}
+.realworld__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.realworld__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--info);
+  background: var(--bg);
+  border: 1px solid var(--info-border);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.realworld__title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--heading);
+}
+.realworld__body p:last-child {
+  margin-bottom: 0;
+}
+.realworld__body .code-block {
+  margin: var(--space-4) 0 0;
+  background: var(--bg);
+}
+
 /* ---------- card ---------- */
 .card {
   background: var(--bg-elevated);
@@ -149,6 +191,26 @@
   height: 7px;
   border-radius: 50%;
   background: var(--accent);
+  flex-shrink: 0;
+}
+.demo__label-text {
+  flex: 1;
+}
+.demo__code-toggle {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+  background: var(--bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.demo__code-toggle:hover {
+  background: var(--accent-soft);
 }
 .demo__stage {
   padding: var(--space-6) var(--space-5);
@@ -157,6 +219,14 @@
   align-items: center;
   gap: var(--space-4);
   text-align: center;
+}
+.demo__code {
+  border-top: 1px solid var(--border);
+}
+.demo__code .code-block {
+  margin: 0;
+  border: none;
+  border-radius: 0;
 }
 
 /* ---------- generic buttons used inside demos ---------- */

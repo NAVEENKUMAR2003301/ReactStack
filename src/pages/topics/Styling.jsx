@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -83,9 +84,51 @@ import './card.css';
 
       <h2>Try it</h2>
       <p>The urgency toggle switches classes and inline color values together.</p>
-      <DemoCard label="State-driven styling">
+      <DemoCard
+        label="State-driven styling"
+        code={[
+          'function StylingDemo() {',
+          '  const [urgent, setUrgent] = useState(false);',
+          '  return (',
+          '    <>',
+          "      <div",
+          "        className={`card${urgent ? ' is-urgent' : ''}`}",
+          '        style={{ color: urgent ? \'var(--danger)\' : \'var(--text)\' }}',
+          '      >',
+          "        {urgent ? '🔥 Urgent ticket' : '💤 Normal ticket'}",
+          '      </div>',
+          '      <button onClick={() => setUrgent((u) => !u)}>Toggle urgency</button>',
+          '    </>',
+          '  );',
+          '}',
+        ].join('\n')}
+      >
         <StylingDemo />
       </DemoCard>
+
+      <RealWorld title="This exact site's dark/light mode">
+        <p>
+          ReactStack's own theme toggle works with CSS custom properties, not
+          conditional class names for every color: <code>--bg</code>, <code>--text</code>,{' '}
+          <code>--accent</code> are redefined once for dark mode, and every component
+          just uses <code>var(--bg)</code> — so a single attribute flip on{' '}
+          <code>&lt;html&gt;</code> re-themes the entire app instantly.
+        </p>
+        <CodeBlock
+          title="theme tokens"
+          code={`:root {
+  --bg: #ffffff;
+  --text: #322d3a;
+}
+:root[data-theme='dark'] {
+  --bg: #0e0d13;
+  --text: #d7d4e0;
+}
+
+/* every component just does this — never a hardcoded color */
+.card { background: var(--bg); color: var(--text); }`}
+        />
+      </RealWorld>
 
       <Quiz
         question="You need a card's translateX position to follow the mouse in real time. Which approach fits best?"

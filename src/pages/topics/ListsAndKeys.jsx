@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -96,9 +97,54 @@ export default function ListsAndKeys() {
         Each todo has a real <code>id</code> used as its key — add and remove items and
         React keeps every row's identity correct.
       </p>
-      <DemoCard label="A keyed, dynamic list">
+      <DemoCard
+        label="A keyed, dynamic list"
+        code={[
+          'function TodoDemo() {',
+          "  const [todos, setTodos] = useState([{ id: 1, text: 'Learn JSX' }, ...]);",
+          "  const [text, setText] = useState('');",
+          '',
+          '  const add = () => setTodos((t) => [...t, { id: nextId++, text }]);',
+          '  const remove = (id) => setTodos((t) => t.filter((todo) => todo.id !== id));',
+          '',
+          '  return (',
+          '    <ul>',
+          '      {todos.map((todo) => (',
+          '        <li key={todo.id}>',
+          '          {todo.text}',
+          '          <button onClick={() => remove(todo.id)}>✕</button>',
+          '        </li>',
+          '      ))}',
+          '    </ul>',
+          '  );',
+          '}',
+        ].join('\n')}
+      >
         <TodoDemo />
       </DemoCard>
+
+      <RealWorld title="Rendering a blog's post list from an API">
+        <p>
+          A blog's homepage fetches an array of posts from a server and maps over it
+          exactly like the todo list — each post already has a unique database{' '}
+          <code>id</code>, which is the natural key. There's no need to invent one.
+        </p>
+        <CodeBlock
+          title="PostList.jsx"
+          code={`function PostList({ posts }) {
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>
+          <Link to={\`/posts/\${post.id}\`}>{post.title}</Link>
+          <span>{post.publishedAt}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="You have a list of rows, each with an editable text input, and users can reorder or delete rows. What should the key be?"

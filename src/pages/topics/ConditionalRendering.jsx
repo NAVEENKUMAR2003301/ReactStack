@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -86,9 +87,46 @@ export default function ConditionalRendering() {
       </ul>
 
       <h2>Try it</h2>
-      <DemoCard label="Three conditions layered together">
+      <DemoCard
+        label="Three conditions layered together"
+        code={`function InboxDemo() {
+  const [count, setCount] = useState(3);
+  const [loggedIn, setLoggedIn] = useState(true);
+
+  return !loggedIn ? (
+    <p>Please log in to see your inbox.</p>
+  ) : count === 0 ? (
+    <p>📭 Inbox zero — nice work.</p>
+  ) : (
+    <p>
+      📬 You have <strong>{count}</strong> unread message{count !== 1 && 's'}
+      {count > 5 && ' — that is a lot!'}
+    </p>
+  );
+}`}
+      >
         <InboxDemo />
       </DemoCard>
+
+      <RealWorld title="A navbar that knows if you're logged in">
+        <p>
+          Almost every site's navbar branches on auth state: a "Log in" button for
+          guests, an avatar + dropdown for signed-in users. That's the exact same
+          ternary pattern as the inbox demo, just deciding between two completely
+          different chunks of UI instead of two lines of text.
+        </p>
+        <CodeBlock
+          title="Navbar.jsx"
+          code={`function Navbar({ user }) {
+  return (
+    <nav>
+      <Logo />
+      {user ? <UserMenu user={user} /> : <LoginButton />}
+    </nav>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question='What does <p>{0 && "You have unread mail"}</p> render when the count is 0?'

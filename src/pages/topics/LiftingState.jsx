@@ -5,6 +5,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -96,9 +97,56 @@ export default function LiftingState() {
       </Callout>
 
       <h2>Try it</h2>
-      <DemoCard label="Two inputs, one shared source of truth">
+      <DemoCard
+        label="Two inputs, one shared source of truth"
+        code={`function TempInput({ label, value, onChange }) {
+  return (
+    <label>
+      {label}
+      <input value={Math.round(value)} onChange={(e) => onChange(Number(e.target.value))} />
+    </label>
+  );
+}
+
+function LiftingDemo() {
+  const [celsius, setCelsius] = useState(20);
+  return (
+    <>
+      <TempInput label="Celsius" value={celsius} onChange={setCelsius} />
+      <TempInput
+        label="Fahrenheit"
+        value={(celsius * 9) / 5 + 32}
+        onChange={(f) => setCelsius(((f - 32) * 5) / 9)}
+      />
+    </>
+  );
+}`}
+      >
         <LiftingDemo />
       </DemoCard>
+
+      <RealWorld title="Filters and results staying in sync">
+        <p>
+          A product listing page (think Amazon's left sidebar) has a filter panel and a
+          results grid that must always agree. Neither owns the filters — their shared
+          parent does, exactly like the temperature example, just with a filters object
+          instead of a number.
+        </p>
+        <CodeBlock
+          title="ProductListPage.jsx"
+          code={`function ProductListPage() {
+  const [filters, setFilters] = useState({ category: 'all', maxPrice: 100 });
+  const results = products.filter((p) => matchesFilters(p, filters));
+
+  return (
+    <>
+      <FilterPanel filters={filters} onChange={setFilters} />
+      <ResultsGrid products={results} />
+    </>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why does the parent store only celsius, and compute fahrenheit inline, rather than storing both in separate state?"

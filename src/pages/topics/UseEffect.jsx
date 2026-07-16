@@ -5,6 +5,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -93,9 +94,60 @@ export default function UseEffect() {
         Pause and resume — watch how the effect tears down the old interval and creates a
         fresh one each time <code>running</code> flips.
       </p>
-      <DemoCard label="A synchronized timer">
+      <DemoCard
+        label="A synchronized timer"
+        code={`function ClockDemo() {
+  const [running, setRunning] = useState(true);
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [running]);
+
+  return (
+    <>
+      <div>{seconds}s</div>
+      <button onClick={() => setRunning((r) => !r)}>
+        {running ? 'Pause' : 'Resume'}
+      </button>
+      <button onClick={() => setSeconds(0)}>Reset</button>
+    </>
+  );
+}`}
+      >
         <ClockDemo />
       </DemoCard>
+
+      <RealWorld title="Loading a user's profile when a page opens">
+        <p>
+          The single most common <code>useEffect</code> in real apps: fetch data when a
+          component mounts (or when an id in the URL changes), track a loading flag, and
+          clean up by ignoring the response if the component unmounts before it arrives.
+        </p>
+        <CodeBlock
+          title="ProfilePage.jsx"
+          code={`function ProfilePage({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+    setLoading(true);
+
+    fetch(\`/api/users/\${userId}\`)
+      .then((res) => res.json())
+      .then((data) => { if (!ignore) { setUser(data); setLoading(false); } });
+
+    return () => { ignore = true; }; // avoid setting state after unmount
+  }, [userId]);
+
+  if (loading) return <Spinner />;
+  return <h1>{user.name}</h1>;
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why does useEffect return a cleanup function here (return () => clearInterval(id))?"

@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -101,9 +102,48 @@ renderCount.current += 1; // no re-render happens`}
       </Callout>
 
       <h2>Try it</h2>
-      <DemoCard label="A DOM ref and a render-count ref">
+      <DemoCard
+        label="A DOM ref and a render-count ref"
+        code={`function FocusDemo() {
+  const inputRef = useRef(null);
+  const renderCount = useRef(0);
+  const [value, setValue] = useState('');
+
+  renderCount.current += 1; // mutating a ref never re-renders
+
+  return (
+    <>
+      <input ref={inputRef} value={value} onChange={(e) => setValue(e.target.value)} />
+      <button onClick={() => inputRef.current.focus()}>Focus the input</button>
+      <p>Rendered {renderCount.current} times</p>
+    </>
+  );
+}`}
+      >
         <FocusDemo />
       </DemoCard>
+
+      <RealWorld title="Autofocusing a modal's first field">
+        <p>
+          When a modal (like a "New task" dialog) opens, good UX puts the cursor
+          straight into its first input — no click required. That's a DOM operation
+          (<code>.focus()</code>), which only makes sense once the input actually
+          exists in the DOM, so it belongs in an effect that runs on mount, using a ref
+          to reach the real node.
+        </p>
+        <CodeBlock
+          title="NewTaskModal.jsx"
+          code={`function NewTaskModal() {
+  const titleRef = useRef(null);
+
+  useEffect(() => {
+    titleRef.current.focus();
+  }, []);
+
+  return <input ref={titleRef} placeholder="Task title" />;
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why doesn't incrementing renderCount.current trigger a re-render?"

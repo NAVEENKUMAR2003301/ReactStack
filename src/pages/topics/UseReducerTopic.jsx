@@ -5,6 +5,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -107,9 +108,59 @@ dispatch({ type: 'add', price: 8 }); // describes *what happened*, not *how to c
       </Callout>
 
       <h2>Try it</h2>
-      <DemoCard label="A cart driven by dispatched actions">
+      <DemoCard
+        label="A cart driven by dispatched actions"
+        code={`function cartReducer(state, action) {
+  switch (action.type) {
+    case 'add': return { items: state.items + 1, total: state.total + action.price };
+    case 'remove': return { items: state.items - 1, total: state.total - action.price };
+    case 'clear': return { items: 0, total: 0 };
+    default: return state;
+  }
+}
+
+function CartDemo() {
+  const [cart, dispatch] = useReducer(cartReducer, { items: 0, total: 0 });
+  return (
+    <>
+      <p>{cart.items} items · \${cart.total}</p>
+      <button onClick={() => dispatch({ type: 'remove', price: 8 })}>− Remove</button>
+      <button onClick={() => dispatch({ type: 'add', price: 8 })}>+ Add</button>
+      <button onClick={() => dispatch({ type: 'clear' })}>Clear</button>
+    </>
+  );
+}`}
+      >
         <CartDemo />
       </DemoCard>
+
+      <RealWorld title="A multi-step checkout flow">
+        <p>
+          A checkout process has several steps (shipping → payment → review), several
+          fields per step, and several ways it can be interrupted (going back, editing
+          an earlier step). A reducer models each of those as a named action, keeping
+          the "how does the form change" logic in one testable place instead of spread
+          across a dozen <code>onChange</code> handlers.
+        </p>
+        <CodeBlock
+          title="checkoutReducer.js"
+          code={`function checkoutReducer(state, action) {
+  switch (action.type) {
+    case 'setField':
+      return { ...state, [action.field]: action.value };
+    case 'nextStep':
+      return { ...state, step: state.step + 1 };
+    case 'goBack':
+      return { ...state, step: Math.max(0, state.step - 1) };
+    default:
+      return state;
+  }
+}
+
+dispatch({ type: 'setField', field: 'email', value: 'me@example.com' });
+dispatch({ type: 'nextStep' });`}
+        />
+      </RealWorld>
 
       <Quiz
         question="What does dispatch({ type: 'add', price: 8 }) actually do?"

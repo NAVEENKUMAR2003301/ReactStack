@@ -6,6 +6,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -92,9 +93,47 @@ function Counter() {
       </Callout>
 
       <h2>Try it</h2>
-      <DemoCard label="A component with memory">
+      <DemoCard
+        label="A component with memory"
+        code={`function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <>
+      <div>{count}</div>
+      <button onClick={() => setCount((c) => c - 1)}>− 1</button>
+      <button onClick={() => setCount(0)}>Reset</button>
+      <button onClick={() => setCount((c) => c + 1)}>+ 1</button>
+    </>
+  );
+}`}
+      >
         <Counter />
       </DemoCard>
+
+      <RealWorld title="A quantity stepper at checkout">
+        <p>
+          The "− 1 / 2 / + 1" quantity control on a checkout page is the counter demo
+          with a real job: <code>quantity</code> is state, the buttons call{' '}
+          <code>setQuantity</code>, and the line total re-renders automatically because
+          it's derived from that same state on every render.
+        </p>
+        <CodeBlock
+          title="QuantityStepper.jsx"
+          code={`function QuantityStepper({ price }) {
+  const [quantity, setQuantity] = useState(1);
+
+  return (
+    <div>
+      <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>−</button>
+      <span>{quantity}</span>
+      <button onClick={() => setQuantity((q) => q + 1)}>+</button>
+      <p>Total: \${(price * quantity).toFixed(2)}</p>
+    </div>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why does clicking a button that runs setCount(count + 1) three times in one handler only increase the count by 1, not 3?"

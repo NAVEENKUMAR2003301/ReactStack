@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -87,9 +88,55 @@ export default function Events() {
       </ul>
 
       <h2>Try it</h2>
-      <DemoCard label="Click and type to see events fire">
+      <DemoCard
+        label="Click and type to see events fire"
+        code={[
+          'function EventDemo() {',
+          '  const [log, setLog] = useState([]);',
+          '  const push = (msg) => setLog((l) => [msg, ...l].slice(0, 4));',
+          '',
+          '  return (',
+          '    <>',
+          "      <button onClick={(e) => push(`Clicked at (${e.clientX}, ${e.clientY})`)}>",
+          '        Click me',
+          '      </button>',
+          '      <input onChange={(e) => push(`Typed: "${e.target.value}"`)} />',
+          '      {log.map((entry, i) => <div key={i}>{entry}</div>)}',
+          '    </>',
+          '  );',
+          '}',
+        ].join('\n')}
+      >
         <EventDemo />
       </DemoCard>
+
+      <RealWorld title="A search box that waits for you to stop typing">
+        <p>
+          A live search bar can't fire a network request on every single keystroke — it
+          would spam the server. Real search boxes handle <code>onChange</code> the same
+          way you just saw, but debounce it: reset a timer on every keystroke, and only
+          actually search once typing pauses.
+        </p>
+        <CodeBlock
+          title="SearchBox.jsx"
+          code={`function SearchBox({ onSearch }) {
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => onSearch(query), 400);
+    return () => clearTimeout(timer); // cancel if the user keeps typing
+  }, [query, onSearch]);
+
+  return (
+    <input
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      placeholder="Search products…"
+    />
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="What's wrong with <button onClick={handleClick()}>?"

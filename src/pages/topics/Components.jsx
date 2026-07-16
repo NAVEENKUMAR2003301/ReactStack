@@ -4,6 +4,7 @@ import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -95,9 +96,61 @@ function Team() {
         <code>Team</code> renders three <code>Avatar</code> components, each with
         different props — the same component, reused three times.
       </p>
-      <DemoCard label="Component tree in action">
+      <DemoCard
+        label="Component tree in action"
+        code={`function Avatar({ emoji, name }) {
+  return (
+    <div>
+      <div>{emoji}</div>
+      <div>{name}</div>
+    </div>
+  );
+}
+
+function TeamDemo() {
+  return (
+    <div>
+      <Avatar emoji="🦊" name="Fox" />
+      <Avatar emoji="🐼" name="Panda" />
+      <Avatar emoji="🐧" name="Penguin" />
+    </div>
+  );
+}`}
+      >
         <TeamDemo />
       </DemoCard>
+
+      <RealWorld title="An Instagram-style feed">
+        <p>
+          A social feed is one component, <code>Post</code>, rendered once per item in a
+          list of posts fetched from a server. Each post itself is built from smaller
+          components — <code>Avatar</code>, <code>LikeButton</code>,{' '}
+          <code>CommentList</code> — the exact same "small pieces, composed" idea as
+          <code> Team</code> above, just at the scale of a real app.
+        </p>
+        <CodeBlock
+          title="Feed.jsx"
+          code={`function Feed({ posts }) {
+  return (
+    <div className="feed">
+      {posts.map((post) => (
+        <Post key={post.id} post={post} />
+      ))}
+    </div>
+  );
+}
+
+function Post({ post }) {
+  return (
+    <article>
+      <Avatar user={post.author} />
+      <p>{post.caption}</p>
+      <LikeButton postId={post.id} likes={post.likes} />
+    </article>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Why does <avatar /> (lowercase) fail to render your component?"

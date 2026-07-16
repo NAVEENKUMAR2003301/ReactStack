@@ -3,6 +3,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -80,9 +81,54 @@ export default function Composition() {
 
       <h2>Try it</h2>
       <p>The card chrome, spacing, and border all live in <code>Panel</code> — only the title prop and the nested content change per use.</p>
-      <DemoCard label="Composable Panel">
+      <DemoCard
+        label="Composable Panel"
+        code={`function Panel({ title, children }) {
+  return (
+    <div className="card">
+      <h3>{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function CompositionDemo() {
+  return (
+    <Panel title="Order #4821">
+      <p>2× Espresso, 1× Croissant</p>
+      <button>Mark ready</button>
+    </Panel>
+  );
+}`}
+      >
         <CompositionDemo />
       </DemoCard>
+
+      <RealWorld title="One Modal, reused for confirmations and forms">
+        <p>
+          Every app has one <code>Modal</code> component — the overlay, the centering,
+          the close button, the escape-key handling — reused for a delete confirmation
+          today and a settings form tomorrow, purely by changing what's passed as
+          children.
+        </p>
+        <CodeBlock
+          title="Modal.jsx"
+          code={`function Modal({ onClose, children }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose}>✕</button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// same Modal, two completely different uses:
+<Modal onClose={close}><DeleteConfirmation /></Modal>
+<Modal onClose={close}><SettingsForm /></Modal>`}
+        />
+      </RealWorld>
 
       <Quiz
         question="What is props.children in <Panel title='X'><p>Hi</p></Panel>?"

@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -96,9 +97,61 @@ export default function Forms() {
       </Callout>
 
       <h2>Try it</h2>
-      <DemoCard label="A controlled, validated form">
+      <DemoCard
+        label="A controlled, validated form"
+        code={`function SignupDemo() {
+  const [email, setEmail] = useState('');
+  const [plan, setPlan] = useState('free');
+  const [submitted, setSubmitted] = useState(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted({ email, plan });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      <select value={plan} onChange={(e) => setPlan(e.target.value)}>
+        <option value="free">Free</option>
+        <option value="pro">Pro</option>
+      </select>
+      <button type="submit">Sign up</button>
+    </form>
+  );
+}`}
+      >
         <SignupDemo />
       </DemoCard>
+
+      <RealWorld title="A login form with inline validation">
+        <p>
+          Real login forms track an <code>errors</code> object alongside each field's
+          value, and only show a message once the user has actually interacted with a
+          field — the same controlled-input pattern, with a bit more state to describe
+          "is this field valid, and should we say so yet."
+        </p>
+        <CodeBlock
+          title="LoginForm.jsx"
+          code={`function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [touched, setTouched] = useState(false);
+  const isValid = /\\S+@\\S+\\.\\S+/.test(email);
+
+  return (
+    <form onSubmit={(e) => e.preventDefault()}>
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        onBlur={() => setTouched(true)}
+      />
+      {touched && !isValid && <p className="error">Enter a valid email</p>}
+      <button disabled={!isValid}>Log in</button>
+    </form>
+  );
+}`}
+        />
+      </RealWorld>
 
       <Quiz
         question="In a controlled <input value={email} onChange={...} />, what actually makes the characters you type appear?"

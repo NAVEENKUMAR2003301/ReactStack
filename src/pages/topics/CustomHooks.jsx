@@ -4,6 +4,7 @@ import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
 import Callout from '../../components/Callout';
+import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
 import { TOPICS } from '../../data/topics';
 
@@ -111,9 +112,59 @@ function StatusBadge() {
 
       <h2>Try it</h2>
       <p>Both live values below come from custom hooks — resize your window or toggle your network connection to see them update.</p>
-      <DemoCard label="Two custom hooks in use">
+      <DemoCard
+        label="Two custom hooks in use"
+        code={`function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+}
+
+function CustomHooksDemo() {
+  const online = useOnlineStatus();
+  const width = useWindowWidth();
+  return (
+    <>
+      <p>{online ? '🟢 Online' : '🔴 Offline'}</p>
+      <p>{width}px — try resizing</p>
+    </>
+  );
+}`}
+      >
         <CustomHooksDemo />
       </DemoCard>
+
+      <RealWorld title="Persisting a shopping cart across page reloads">
+        <p>
+          A cart that survives a page refresh needs to read from{' '}
+          <code>localStorage</code> on first render and write to it on every change —
+          logic that's identical whether it's a cart, a draft comment, or saved form
+          progress. Extracting <code>useLocalStorage</code> once means every future
+          "remember this across reloads" feature is a one-line hook call.
+        </p>
+        <CodeBlock
+          title="useLocalStorage.js"
+          code={`function useLocalStorage(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : initialValue;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue];
+}
+
+// used just like useState, anywhere:
+const [cart, setCart] = useLocalStorage('cart', []);`}
+        />
+      </RealWorld>
 
       <Quiz
         question="Can a custom hook call other hooks like useState and useEffect inside it?"
