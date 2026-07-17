@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LEVELS, TOPICS } from '../data/topics';
+import CurriculumHighlights from '../components/CurriculumHighlights';
+import WhatsInside from '../components/WhatsInside';
+import WhoThisIsFor from '../components/WhoThisIsFor';
+import PurchaseCTA from '../components/PurchaseCTA';
 
 const container = {
   hidden: {},
@@ -48,6 +52,9 @@ export default function Home() {
           <Link to="/learn/jsx" className="btn btn--primary">
             Start with JSX →
           </Link>
+          <Link to="/learn/state" className="btn">
+            ▶ Try a Free Lesson
+          </Link>
           <Link to="/learn/use-reducer" className="btn">
             Jump to advanced
           </Link>
@@ -68,6 +75,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CurriculumHighlights />
+      <WhatsInside />
+      <WhoThisIsFor />
 
       {Object.entries(LEVELS).map(([levelKey, level]) => (
         <section key={levelKey} style={{ marginBottom: 'var(--space-7)' }}>
@@ -101,6 +112,8 @@ export default function Home() {
           </motion.div>
         </section>
       ))}
+
+      <PurchaseCTA />
     </div>
   );
 }
