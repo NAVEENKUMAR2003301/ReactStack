@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -123,6 +124,64 @@ function Welcome() {
       >
         <GreetingDemo />
       </DemoCard>
+
+      <h2>What actually happens when you type a letter</h2>
+      <StepThrough
+        title="Tracing one keystroke in the name field"
+        steps={[
+          {
+            icon: '⌨️',
+            label: 'Type',
+            explain: 'You type a character into the input, and the browser fires its onChange handler.',
+            preview: 'input event fired',
+          },
+          {
+            icon: '👆',
+            label: 'setName',
+            explain: 'The handler calls setName(e.target.value) — this schedules a re-render, it does not change name yet.',
+            preview: 'name update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React calls GreetingDemo again. name now holds the new text, and isLongName is recalculated from it.',
+            preview: 'name === "friendly", isLongName === true',
+          },
+          {
+            icon: '🧮',
+            label: 'Evaluate JSX',
+            explain: 'The {name} and {isLongName && ...} curly-brace expressions are just JavaScript, so they re-evaluate against the new values.',
+            preview: '{name} → "friendly", {isLongName && …} → "👋 nice long name"',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React updates only the text nodes that actually changed in the real DOM — the rest of the page is untouched.',
+            preview: 'DOM text updated',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="When you call setName(e.target.value) inside the onChange handler, does name change immediately, in that same line of code?"
+        options={[
+          'Yes, name is updated the instant setName runs',
+          'No — it schedules a re-render; name only holds the new value once GreetingDemo runs again',
+          'Only if you also call e.preventDefault()',
+        ]}
+        correctIndex={1}
+        explanation="just like any state setter, setName never mutates the current render's variables — it tells React to re-run the component, and the new value shows up as the return value of useState on that next call."
+      />
+      <Quiz
+        question="Why does {isLongName && '👋 nice long name'} work as conditional JSX, but a plain if statement wouldn't in the same spot?"
+        options={[
+          "Curly braces only accept JavaScript expressions, and && short-circuits to a value — an if is a statement, which has no value to insert",
+          'if statements are not valid JavaScript',
+          '&& is special JSX-only syntax unrelated to normal JavaScript',
+        ]}
+        correctIndex={0}
+        explanation="{ } in JSX can hold any expression — something that evaluates to a value — and a && b is exactly that; if/else are statements that don't produce a value, so they can't be dropped into that spot directly."
+      />
 
       <RealWorld title="Product cards on a shopping site">
         <p>

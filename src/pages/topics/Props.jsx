@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -115,6 +116,64 @@ export default function Props() {
       >
         <PropsDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;+ 5&rdquo;</h2>
+      <StepThrough
+        title="Tracing one click of the + 5 button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "+5", which calls setAmount(a => a + 5) in the parent, PropsDemo.',
+            preview: 'amount update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Parent re-runs',
+            explain: 'React re-runs PropsDemo. amount is now 5 higher — this value lives only in the parent, never in PriceTag.',
+            preview: 'amount === 47',
+          },
+          {
+            icon: '📦',
+            label: 'Props recomputed',
+            explain: 'Each <PriceTag amount={...} /> call passes a fresh value: Plan A gets amount, Plan B gets amount * 2.',
+            preview: 'Plan A → amount=47, Plan B → amount=94',
+          },
+          {
+            icon: '🧩',
+            label: 'Children re-render',
+            explain: 'Both PriceTag calls re-run with their new props. Neither PriceTag has any state of its own — it just displays whatever it was handed.',
+            preview: 'PriceTag(props) runs twice',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React updates only the two text nodes that actually changed — both cards update together because they both derive from the one parent value.',
+            preview: 'both cards show new numbers',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="After clicking + 5, which component's state actually changed?"
+        options={[
+          "Plan A's PriceTag component",
+          'PropsDemo, the parent — PriceTag has no state of its own',
+          "Both PriceTag components, independently",
+        ]}
+        correctIndex={1}
+        explanation="amount lives in PropsDemo via useState; both PriceTag cards are plain, stateless functions that just render whatever amount prop they're handed that render."
+      />
+      <Quiz
+        question="Plan B shows amount * 2 and a different currency. Where does that logic live?"
+        options={[
+          "Inside PriceTag, which checks which plan it is",
+          "In the parent, PropsDemo — it computes amount * 2 and passes currency='€' as the props for that specific PriceTag call",
+          'In a global variable shared by both cards',
+        ]}
+        correctIndex={1}
+        explanation="PriceTag is generic and doesn't know about 'Plan B' at all — the parent decides what data each instance gets, which is exactly what makes the same component reusable for different cards."
+      />
 
       <RealWorld title="One Button component, every button on the site">
         <p>

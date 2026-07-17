@@ -4,6 +4,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -110,6 +111,70 @@ function Counter() {
       >
         <Counter />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;+ 1&rdquo;</h2>
+      <p>
+        Click through each step below to see, in order, why the count on screen changes —
+        this is the exact same sequence for every <code>useState</code> update, not just
+        this counter.
+      </p>
+      <StepThrough
+        title="Tracing one click of the + 1 button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain:
+              'You click "+1", which runs the onClick handler and calls setCount(c => c + 1). This does not change count yet.',
+            preview: 'count === 0 (still)',
+          },
+          {
+            icon: '📌',
+            label: 'Schedule',
+            explain:
+              'React sees the setter was called and marks this component as "needs to re-render." It does not re-run anything synchronously inside the click handler.',
+            preview: 'update scheduled, count === 0 (still)',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain:
+              'Before the next paint, React calls the Counter function again from the top. This time useState(0) returns 1 — the new value the setter computed.',
+            preview: 'Counter() runs again → count === 1',
+          },
+          {
+            icon: '🆕',
+            label: 'New JSX',
+            explain:
+              'The function returns a fresh JSX tree describing what the UI should look like now that count is 1. This is just a description — nothing on screen has changed yet.',
+            preview: '<div>{1}</div> ...',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain:
+              'React compares the new JSX to what was on screen before, and updates only the text node that actually changed — the "0" becomes "1" in the real DOM.',
+            preview: 'DOM now shows: 1',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="In the trace above, at the 'Schedule' step, what is the value of count?"
+        options={['Already 1', 'Still 0 — the re-render has not happened yet', 'undefined']}
+        correctIndex={1}
+        explanation="setCount() only requests a re-render — the component function hasn't run again yet, so every variable from the current render (including count) is still whatever it was when this render started."
+      />
+      <Quiz
+        question="Why does React re-run the whole Counter function instead of just updating the number on screen directly?"
+        options={[
+          'Because JSX can only be produced by re-running the component function, and React then diffs the result against what is on screen',
+          "Because it's slower on purpose to prevent bugs",
+          'It only re-runs the function on the very first render',
+        ]}
+        correctIndex={0}
+        explanation="React's model is: state changes → re-run the function to get a new JSX description → diff it against the previous one → apply only the minimal DOM changes needed."
+      />
 
       <RealWorld title="A quantity stepper at checkout">
         <p>

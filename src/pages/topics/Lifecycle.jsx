@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -136,6 +137,64 @@ export default function Lifecycle() {
       >
         <LifecycleDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Trigger render&rdquo;</h2>
+      <StepThrough
+        title="Tracing all three phases for one click"
+        steps={[
+          {
+            icon: '🧠',
+            label: 'Trigger',
+            explain: 'You click the button, calling setCount(c => c + 1) — this is the trigger that starts the whole sequence.',
+            preview: 'count update scheduled',
+          },
+          {
+            icon: '📝',
+            label: 'Render',
+            explain: 'React calls LifecycleDemo() again. renderPhase.current += 1 runs here — this is pure calculation, nothing on the real page has changed yet.',
+            preview: 'function runs, returns new JSX',
+          },
+          {
+            icon: '🌳',
+            label: 'Reconcile',
+            explain: 'React diffs the newly returned JSX against what was on screen before, computing the minimal set of real changes needed (just the button\'s text, in this case).',
+            preview: 'diff computed: button label changed',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React applies that diff to the actual DOM. Only now does the button\'s label actually change on the page.',
+            preview: 'DOM updated: "Trigger render #2"',
+          },
+          {
+            icon: '⚡',
+            label: 'Effects',
+            explain: 'Only after the commit is done does the useEffect callback run, appending a new log line — guaranteed to happen after the DOM is already up to date.',
+            preview: '"commit #2: effect ran, DOM is updated"',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="At the 'Render' step, has the button's visible label on the page already changed?"
+        options={[
+          "Yes, render updates the screen immediately",
+          "No — render only produces a new JSX description; the real DOM isn't touched until the commit step",
+          "Only the label changes during render, other attributes wait for commit",
+        ]}
+        correctIndex={1}
+        explanation="render is pure calculation — React can even call it more than once without committing (e.g. under Strict Mode) — so nothing on the actual page changes until the separate commit phase runs."
+      />
+      <Quiz
+        question="Why does the effect's log line always show 'DOM is updated' as already true, never 'about to update'?"
+        options={[
+          "It's just a description choice with no technical reason",
+          "useEffect callbacks are guaranteed to run after the commit phase, so the DOM has always already been updated by the time an effect runs",
+          "Effects run before commit, so the message is inaccurate",
+        ]}
+        correctIndex={1}
+        explanation="that ordering — trigger, render, commit, then effects — is a fixed guarantee in React, which is exactly why effects are the safe place to read layout or trigger anything that depends on the DOM being current."
+      />
 
       <RealWorld title="Sizing a chart canvas to its container">
         <p>

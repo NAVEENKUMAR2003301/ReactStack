@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -109,6 +110,60 @@ export default function Events() {
       >
         <EventDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Click me&rdquo;</h2>
+      <StepThrough
+        title="Tracing one click of the button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'The browser fires a native click event. React\'s event system catches it and calls your onClick handler with a SyntheticEvent, e.',
+            preview: 'onClick(e) invoked',
+          },
+          {
+            icon: '📍',
+            label: 'Read e',
+            explain: 'The handler reads e.clientX and e.clientY off that event object to build a log message — this has to happen synchronously, while e is still valid.',
+            preview: 'msg = "Clicked at (142, 88)"',
+          },
+          {
+            icon: '📜',
+            label: 'push(msg)',
+            explain: 'push calls setLog with an updater function: [msg, ...l].slice(0, 4) — prepend the new entry, keep only the latest 4.',
+            preview: 'log update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs EventDemo. log now includes the new entry at the front.',
+            preview: 'log[0] === "Clicked at (142, 88)"',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React updates the DOM: one new line appears at the top of the log, and the oldest line (past 4) is removed.',
+            preview: 'log list re-rendered',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Why does the handler read e.clientX before calling setLog, rather than after?"
+        options={[
+          "It doesn't matter, order is irrelevant",
+          "React may reuse/clear the SyntheticEvent object after the handler finishes, so values need to be read synchronously during the handler",
+          "setLog always runs before the handler body",
+        ]}
+        correctIndex={1}
+        explanation="event properties should be read (or the event persisted) while the handler is executing — reading them later, e.g. inside an async callback, can see a cleared event object."
+      />
+      <Quiz
+        question="Typing into the input logs a message like Typed: '...' on every keystroke. Which prop makes that happen?"
+        options={['onSubmit', 'onChange', 'onFocus']}
+        correctIndex={1}
+        explanation="onChange fires on every value change to a form field, which is exactly why it's the standard event for tracking what a user is typing, live."
+      />
 
       <RealWorld title="A search box that waits for you to stop typing">
         <p>

@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -107,6 +108,60 @@ export default function ConditionalRendering() {
       >
         <InboxDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;New message&rdquo;</h2>
+      <StepThrough
+        title="Tracing one click of the 'New message' button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "New message", which calls setCount(c => c + 1).',
+            preview: 'count update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs InboxDemo. count is now higher than before.',
+            preview: 'count === 4',
+          },
+          {
+            icon: '🔀',
+            label: 'First check',
+            explain: '!loggedIn is checked first — it\'s false, so React moves to the next condition instead of showing the login message.',
+            preview: '!loggedIn → false, skip',
+          },
+          {
+            icon: '🔀',
+            label: 'Second check',
+            explain: 'count === 0 is checked next — also false, since count is 4, so React moves to the final branch.',
+            preview: 'count === 0 → false, skip',
+          },
+          {
+            icon: '🖥️',
+            label: 'Render & commit',
+            explain: 'The final branch renders, and {count > 5 && \'…\'} is re-evaluated too — with count at 4, that piece stays hidden.',
+            preview: '"📬 You have 4 unread messages"',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="In this ternary chain, in what order are the conditions checked?"
+        options={[
+          'All three conditions are checked simultaneously',
+          '!loggedIn first, then count === 0, then the fallback — top to bottom, stopping at the first true one',
+          'React checks whichever condition changed most recently',
+        ]}
+        correctIndex={1}
+        explanation="a ternary chain is just nested if/else under the hood — JavaScript evaluates left to right and short-circuits at the first truthy branch, exactly like reading it top to bottom."
+      />
+      <Quiz
+        question="If count reaches 0 by clicking 'Read one' enough times, which branch renders?"
+        options={["The unread-messages branch, showing '0 unread'", "The 'Inbox zero' branch", "Nothing renders"]}
+        correctIndex={1}
+        explanation="count === 0 becomes true, so the ternary's second branch is selected — this is exactly why the code checks for that case explicitly instead of relying on the count > 5 style && check, which would misrender a literal 0."
+      />
 
       <RealWorld title="A navbar that knows if you're logged in">
         <p>

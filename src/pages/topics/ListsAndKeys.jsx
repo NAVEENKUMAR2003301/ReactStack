@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -122,6 +123,64 @@ export default function ListsAndKeys() {
       >
         <TodoDemo />
       </DemoCard>
+
+      <h2>What actually happens when you add a task</h2>
+      <StepThrough
+        title="Tracing one call to add()"
+        steps={[
+          {
+            icon: '⌨️',
+            label: 'Add',
+            explain: 'You type a task and press Enter (or click Add). add() runs, calling setTodos with a new array: [...t, { id: nextId++, text }].',
+            preview: 'todos update scheduled',
+          },
+          {
+            icon: '🆕',
+            label: 'New array',
+            explain: 'Note this builds a brand new array with the spread operator — it never mutates the old todos array in place.',
+            preview: '[...oldTodos, { id: 4, text: "…" }]',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs TodoDemo. todos.map() runs again over the new, longer array.',
+            preview: '4 <li> elements produced, one per todo',
+          },
+          {
+            icon: '🔑',
+            label: 'Match by key',
+            explain: 'React compares the new list of keys against the old one. The first 3 keys (ids 1, 2, 3) match existing DOM nodes exactly — only the new id is unrecognized.',
+            preview: '3 keys matched, 1 new key',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React leaves the first 3 <li> DOM nodes untouched and inserts exactly one new <li> for the new todo.',
+            preview: '1 new <li> inserted, 3 untouched',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Why does add() write setTodos((t) => [...t, newTodo]) instead of t.push(newTodo)?"
+        options={[
+          'push() is slower than spreading an array',
+          'push() mutates the existing array in place — React compares old vs. new state by reference, so a mutated array looks unchanged and might not trigger a re-render',
+          'There is no real difference, either works identically',
+        ]}
+        correctIndex={1}
+        explanation="React (and the updater-function pattern) expects a new array/object when state changes — mutating the old one in place can cause React to think nothing changed, since it's still the exact same reference."
+      />
+      <Quiz
+        question="If the list used the array index as the key instead of todo.id, what would break after removing the first item?"
+        options={[
+          'Nothing — indexes work exactly as well as ids',
+          "Every remaining row would be re-matched to the wrong index, potentially misattributing any per-row local state (like focus) to the wrong item",
+          'The list would stop rendering entirely',
+        ]}
+        correctIndex={1}
+        explanation="removing the first item shifts every other item's index down by one — React would think row 2 is now row 1's data, mismatching identity even though nothing about that row actually changed."
+      />
 
       <RealWorld title="Rendering a blog's post list from an API">
         <p>

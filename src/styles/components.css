@@ -325,6 +325,64 @@
   font-size: 1.2rem;
 }
 
+/* ---------- step-through (manual click-through walkthrough) ---------- */
+.step-through {
+  margin: var(--space-5) 0;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.step-through__title {
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: var(--space-4);
+}
+.step-through__rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.step-through__node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+.step-through__node.is-done {
+  color: var(--text-muted);
+  border-color: var(--border-strong);
+}
+.step-through__node.is-active {
+  color: var(--accent-strong);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+.step-through__panel {
+  min-height: 64px;
+}
+.step-through__explain {
+  margin: 0 0 var(--space-3);
+}
+.step-through__preview {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--heading);
+}
+
 /* ---------- quiz ---------- */
 .quiz {
   margin: var(--space-6) 0;

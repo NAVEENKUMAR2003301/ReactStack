@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -123,6 +124,64 @@ function PerformanceDemo() {
       >
         <PerformanceDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Re-render&rdquo; with memoization on</h2>
+      <StepThrough
+        title="Tracing a re-render that doesn't change n"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "Re-render" without touching n. This calls setTick(t => t + 1) — a state change unrelated to n.',
+            preview: 'tick update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Component re-runs',
+            explain: 'React re-runs PerformanceDemo, as it does for any state change — the whole function body executes again.',
+            preview: 'PerformanceDemo() runs again',
+          },
+          {
+            icon: '🔍',
+            label: 'useMemo checks deps',
+            explain: 'React reaches useMemo(() => slowIsPrime(n), [n, memoized ? 0 : tick]). With memoized true, that array is [n, 0] — and 0 never changes, so this array is identical to last render\'s.',
+            preview: '[97, 0] === [97, 0] → unchanged',
+          },
+          {
+            icon: '📦',
+            label: 'Cached value reused',
+            explain: 'Because the dependency array is unchanged, React skips calling slowIsPrime entirely and returns the cached result from last time.',
+            preview: 'slowIsPrime NOT called — cache hit',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'Only the tick count in the button label updates on screen — ms stays near 0ms, since no expensive work actually ran.',
+            preview: '"Re-render (1) without changing n", ~0ms',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="If you uncheck 'use useMemo' and click Re-render, what changes about the dependency array useMemo evaluates?"
+        options={[
+          "Nothing changes, the array stays [n, 0]",
+          "It becomes [n, tick] — since tick now changes on every click, the array differs from the previous render every time",
+          "useMemo stops being called entirely",
+        ]}
+        correctIndex={1}
+        explanation="the demo's memoized checkbox swaps the second dependency between a constant (0) and the actual changing tick — that's what forces slowIsPrime to recompute on every click when memoization is 'off', without breaking the rule that hooks must run unconditionally."
+      />
+      <Quiz
+        question="Why does the demo say useMemo has its own cost, rather than being a free performance win?"
+        options={[
+          "It has no real cost, the warning is just cautious wording",
+          "React still has to store the previous dependency array and compare it against the new one on every render, which itself takes time and memory",
+          "useMemo re-runs the calculation twice to verify the cached value",
+        ]}
+        correctIndex={1}
+        explanation="the comparison-and-cache bookkeeping isn't free — for a cheap calculation, that overhead can outweigh just redoing the work, which is why useMemo is worth reaching for only once a real cost has been measured."
+      />
 
       <RealWorld title="Filtering a large data table without lag">
         <p>

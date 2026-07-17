@@ -2,6 +2,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -103,6 +104,64 @@ function CompositionDemo() {
       >
         <CompositionDemo />
       </DemoCard>
+
+      <h2>What actually happens when this mounts</h2>
+      <StepThrough
+        title="Tracing how children flows into Panel"
+        steps={[
+          {
+            icon: '🔤',
+            label: 'JSX written',
+            explain: 'CompositionDemo writes <Panel title="Order #4821"> with a <p> and a <button> nested inside it.',
+            preview: '<Panel>...</Panel> with nested JSX',
+          },
+          {
+            icon: '📦',
+            label: 'children collected',
+            explain: 'Before Panel even runs, React collects everything nested between its tags into one value and passes it as props.children.',
+            preview: 'props.children = [<p>…</p>, <button>…</button>]',
+          },
+          {
+            icon: '🧩',
+            label: 'Panel runs',
+            explain: 'Panel executes with { title, children } destructured from props — it has no idea what\'s actually inside children, only that it\'s some JSX to render.',
+            preview: 'Panel({ title: "Order #4821", children: [...] })',
+          },
+          {
+            icon: '🌳',
+            label: 'Slot filled',
+            explain: 'Panel returns its own card chrome (title, border, padding) with {children} dropped in the middle — the caller\'s JSX and Panel\'s JSX merge into one tree.',
+            preview: 'card chrome + injected content',
+          },
+          {
+            icon: '🖥️',
+            label: 'Paint',
+            explain: 'The combined tree is rendered once, as a single component tree — there is no separate "slot-filling" step at runtime.',
+            preview: 'card renders with order details inside',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Does Panel need to know that its children happen to be a <p> and a <button>?"
+        options={[
+          "Yes, Panel must declare exactly which elements it accepts as children",
+          "No — Panel only cares that children is some renderable JSX; it never inspects what's inside it",
+          "Panel converts children into HTML strings before rendering",
+        ]}
+        correctIndex={1}
+        explanation="that's the entire point of the pattern: Panel stays generic by treating children as an opaque value to render, not something it needs to understand or validate."
+      />
+      <Quiz
+        question="If you wanted a second Panel showing a different order with a 'Cancel' button instead, what would you change?"
+        options={[
+          "Add new props to Panel like buttonLabel and buttonAction",
+          "Nothing about Panel itself — just pass different JSX as its children at the call site",
+          "Copy Panel into a new component just for that case",
+        ]}
+        correctIndex={1}
+        explanation="composition means the variation lives at the call site, in what you nest inside <Panel>...</Panel>, not inside Panel's own prop list — which is exactly what keeps Panel reusable without growing new props for every use case."
+      />
 
       <RealWorld title="One Modal, reused for confirmations and forms">
         <p>

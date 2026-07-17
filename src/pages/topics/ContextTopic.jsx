@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -133,6 +134,64 @@ function ContextDemo() {
       >
         <ContextDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;pink&rdquo;</h2>
+      <StepThrough
+        title="Tracing one click of the 'pink' button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "pink", which calls setAccent(\'pink\') in ContextDemo.',
+            preview: 'accent update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Provider re-runs',
+            explain: 'React re-runs ContextDemo. It renders <AccentContext.Provider value="pink">, a new value for the context.',
+            preview: 'Provider value === "pink"',
+          },
+          {
+            icon: '➡️',
+            label: 'MiddleWrapper re-renders',
+            explain: 'MiddleWrapper re-renders too, as any child of a re-rendering parent normally does — but it never reads useContext(AccentContext), so it has no idea the value changed.',
+            preview: 'MiddleWrapper() runs, ignores accent entirely',
+          },
+          {
+            icon: '🎯',
+            label: 'DeepButton reads context',
+            explain: 'DeepButton calls useContext(AccentContext) directly. Because the Provider above it now has value="pink", that call returns "pink" — no matter how many components sit in between.',
+            preview: 'accent === "pink" inside DeepButton',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'Only DeepButton\'s border/text color actually changes on screen — the update reached it directly through context, not by being passed down through MiddleWrapper.',
+            preview: 'button turns pink',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Does MiddleWrapper need to change at all when a new context value, like 'teal', is introduced later?"
+        options={[
+          "Yes, it must be updated to accept and forward the new value",
+          "No — MiddleWrapper never touches AccentContext, so it's completely unaffected by adding new possible values",
+          "Yes, every component in the tree must call useContext",
+        ]}
+        correctIndex={1}
+        explanation="that's the payoff of context: components that don't care about a value are never coupled to it, so they don't need to change when that value's possibilities change."
+      />
+      <Quiz
+        question="If DeepButton were rendered outside of any AccentContext.Provider, what value would useContext(AccentContext) return?"
+        options={[
+          "undefined, always",
+          "The default value passed to createContext('purple') — 'purple' in this case",
+          "It would throw an error",
+        ]}
+        correctIndex={1}
+        explanation="createContext(defaultValue) supplies a fallback for exactly this situation — any consumer with no matching Provider above it in the tree receives that default instead of erroring."
+      />
 
       <RealWorld title="Knowing who's logged in, anywhere in the app">
         <p>

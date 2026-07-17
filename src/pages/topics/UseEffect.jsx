@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -119,6 +120,64 @@ export default function UseEffect() {
       >
         <ClockDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Pause&rdquo;</h2>
+      <StepThrough
+        title="Tracing one click of the Pause button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "Pause", which calls setRunning(r => !r).',
+            preview: 'running update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs ClockDemo. running is now false, so the button label flips to "Resume".',
+            preview: 'running === false',
+          },
+          {
+            icon: '🔍',
+            label: 'Compare deps',
+            explain: 'After committing, React compares this effect\'s dependency array, [running], against last time. It changed (true → false), so the effect must re-run.',
+            preview: '[true] !== [false] → re-run needed',
+          },
+          {
+            icon: '🧹',
+            label: 'Cleanup runs first',
+            explain: 'Before running the new effect, React runs the cleanup function returned last time: clearInterval(id) — stopping the old ticking timer.',
+            preview: 'old interval cleared',
+          },
+          {
+            icon: '▶️',
+            label: 'New effect runs',
+            explain: 'The effect body runs again. Since running is now false, it hits the early return — no new interval is created, so the clock stays frozen.',
+            preview: 'no new interval (paused)',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="What would happen if the effect's cleanup function (return () => clearInterval(id)) were removed?"
+        options={[
+          'Nothing — clearInterval only matters on unmount',
+          'Every time running changes, a brand new interval would start stacking on top of any still-running ones, making the clock tick faster and faster',
+          'The component would fail to render at all',
+        ]}
+        correctIndex={1}
+        explanation="without cleanup, each re-run of the effect creates another setInterval without ever clearing the previous one — multiple timers end up incrementing seconds simultaneously."
+      />
+      <Quiz
+        question="If the dependency array were changed from [running] to [] (empty), what would break?"
+        options={[
+          'Nothing, it would behave identically',
+          "The effect would only run once on mount and never react to running changing — pausing/resuming the state would no longer start or stop the interval",
+          'The component would throw an error immediately',
+        ]}
+        correctIndex={1}
+        explanation="an empty dependency array means run once, never again — since the effect reads running, omitting it from the array means the effect keeps using the running value from that first render, a classic stale closure."
+      />
 
       <RealWorld title="Loading a user's profile when a page opens">
         <p>

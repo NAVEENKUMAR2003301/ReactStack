@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -124,6 +125,64 @@ function RoutingDemo() {
       >
         <RoutingDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Go to product #42&rdquo;</h2>
+      <StepThrough
+        title="Tracing one simulated navigation"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "Go to product #42", which calls onNavigate(\'/product/42\') — really just setPath(\'/product/42\') under the hood.',
+            preview: 'path update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs RoutingDemo. path now holds the new string.',
+            preview: 'path === "/product/42"',
+          },
+          {
+            icon: '🔎',
+            label: 'Match against pattern',
+            explain: 'path.match(/^\\/product\\/(.+)$/) is evaluated again. This time it matches, capturing "42" as productMatch[1].',
+            preview: 'productMatch !== null, id === "42"',
+          },
+          {
+            icon: '🔀',
+            label: 'Branch selected',
+            explain: 'The ternary now picks <MiniProduct id="42" ... /> instead of <MiniHome ... /> — a real Router does exactly this same match-and-select against the actual browser URL.',
+            preview: '<MiniProduct id="42" /> selected',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React swaps the rendered subtree — the home card is replaced by the product card, with no full page reload.',
+            preview: '"📦 Product page — id \\"42\\" read from the URL"',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="In a real app using react-router-dom, what would replace this demo's regex match against path?"
+        options={[
+          "Nothing — you'd still write your own regex for every route",
+          "The <Routes>/<Route path=\"/product/:id\"> pattern, with useParams() reading the matched id",
+          "A full page reload for every route change",
+        ]}
+        correctIndex={1}
+        explanation="React Router's Route component, matching path /product/:id, does the same job as this demo's regex — match a URL pattern and expose the captured segment — but as a declarative, tested API instead of hand-rolled matching."
+      />
+      <Quiz
+        question="Why doesn't clicking the navigate button in this demo (or a real <Link>) cause a full page reload?"
+        options={[
+          "Because it's not a real navigation, just a visual trick with no URL change",
+          "Because it updates a piece of state (or the History API in a real Router) and re-renders the matched component in place, instead of asking the browser to fetch a new page",
+          "Modern browsers never reload for any click",
+        ]}
+        correctIndex={1}
+        explanation="client-side routing intercepts navigation and handles it entirely inside the already-loaded JavaScript app — the URL changes, and React swaps components, but the browser never issues a new page request."
+      />
 
       <RealWorld title="An e-commerce site's page structure">
         <p>

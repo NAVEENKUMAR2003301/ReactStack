@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -123,6 +124,64 @@ export default function Forms() {
       >
         <SignupDemo />
       </DemoCard>
+
+      <h2>What actually happens when you submit</h2>
+      <StepThrough
+        title="Tracing a click on 'Sign up'"
+        steps={[
+          {
+            icon: '⌨️',
+            label: 'Type',
+            explain: 'Each keystroke in the email field fires onChange, calling setEmail — the input\'s value prop always mirrors that state.',
+            preview: 'email === "you@example.com"',
+          },
+          {
+            icon: '👆',
+            label: 'Submit clicked',
+            explain: 'Clicking "Sign up" fires the form\'s onSubmit, which by default would reload the page — that\'s why handleSubmit\'s first line is e.preventDefault().',
+            preview: 'page reload cancelled',
+          },
+          {
+            icon: '📸',
+            label: 'Snapshot taken',
+            explain: 'handleSubmit calls setSubmitted({ email, plan }) — reading the current email and plan state at the moment of submission.',
+            preview: 'submitted update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs SignupDemo. submitted is no longer null, so the confirmation branch of the JSX now renders.',
+            preview: 'submitted !== null',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React adds the confirmation paragraph to the DOM — the form itself stays exactly as it was, since email and plan didn\'t change.',
+            preview: '"✅ Would submit: you@example.com on the free plan."',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="What happens if handleSubmit omits e.preventDefault()?"
+        options={[
+          'Nothing changes, it\'s optional',
+          'The browser performs its default full-page form submission and reload, discarding all React state',
+          'setSubmitted simply runs twice instead of once',
+        ]}
+        correctIndex={1}
+        explanation="an HTML form's default behavior is to navigate/reload on submit — preventDefault() is what lets your JavaScript handler own the submission instead."
+      />
+      <Quiz
+        question="Why is the <select> for plan also 'controlled', using value={plan} and onChange, instead of just reading it on submit?"
+        options={[
+          '<select> elements cannot be read without being controlled',
+          "It keeps plan as a single source of truth the whole component can react to at any time (e.g. to disable options, show a live preview), not just at submission",
+          'It has no real benefit, it is purely stylistic',
+        ]}
+        correctIndex={1}
+        explanation="controlling every field the same way means the component always knows the current value of the whole form, which is what makes live validation, conditional fields, and previews possible without extra plumbing."
+      />
 
       <RealWorld title="A login form with inline validation">
         <p>

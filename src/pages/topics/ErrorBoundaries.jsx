@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -132,6 +133,64 @@ function ErrorBoundaryDemo() {
       >
         <ErrorBoundaryDemo />
       </DemoCard>
+
+      <h2>What actually happens when you trigger the crash</h2>
+      <StepThrough
+        title="Tracing a caught render error"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "💥 Trigger a render crash", which calls setCrash(true).',
+            preview: 'crash update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-render',
+            explain: 'React re-renders ErrorBoundaryDemo, and BuggyWidget receives crash={true} as its new prop.',
+            preview: 'BuggyWidget({ crash: true })',
+          },
+          {
+            icon: '💥',
+            label: 'Throw',
+            explain: 'While rendering, BuggyWidget hits if (crash) { throw new Error(...) } — an actual JavaScript error thrown mid-render, not caught by any try/catch here.',
+            preview: 'Error thrown during render',
+          },
+          {
+            icon: '🛡️',
+            label: 'Boundary catches it',
+            explain: 'React unwinds up the tree looking for the nearest error boundary. ErrorBoundary.getDerivedStateFromError() runs, returning { hasError: true }.',
+            preview: 'ErrorBoundary.state.hasError === true',
+          },
+          {
+            icon: '🖥️',
+            label: 'Fallback commits',
+            explain: 'ErrorBoundary re-renders its fallback card instead of the crashed BuggyWidget — everything outside the boundary is completely unaffected.',
+            preview: '"Something went wrong in this widget." shown',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="What exactly does ErrorBoundary catch in this demo?"
+        options={[
+          "Any error anywhere in the whole app, including button click handlers",
+          "An error thrown specifically while BuggyWidget was rendering, inside the boundary's own subtree",
+          "Network errors from any fetch() call on the page",
+        ]}
+        correctIndex={1}
+        explanation="error boundaries only catch errors thrown during the render of their children — this demo's throw happens directly inside BuggyWidget's render, which is exactly the case they're built for."
+      />
+      <Quiz
+        question="If the crash were triggered by an onClick handler throwing, instead of happening during render, would this ErrorBoundary catch it?"
+        options={[
+          "Yes, boundaries catch everything below them regardless of when it happens",
+          "No — click handlers run outside of React's render process, so a boundary never sees that error; it needs a manual try/catch instead",
+          "Only if the handler also calls setState",
+        ]}
+        correctIndex={1}
+        explanation="error boundaries hook specifically into the render lifecycle — an error inside a callback like onClick happens later, well after any render call has returned, so React has no hook there to intercept it."
+      />
 
       <RealWorld title="A broken chart widget shouldn't take down the dashboard">
         <p>

@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -122,6 +123,64 @@ renderCount.current += 1; // no re-render happens`}
       >
         <FocusDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Focus the input&rdquo;</h2>
+      <StepThrough
+        title="Comparing a ref click vs. a state-changing click"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click Focus',
+            explain: 'You click "Focus the input", which runs inputRef.current.focus() — a direct, imperative call to the real DOM node\'s own .focus() method.',
+            preview: 'input.focus() called directly',
+          },
+          {
+            icon: '🚫',
+            label: 'No re-render',
+            explain: 'Nothing called a state setter, so React has no reason to re-run FocusDemo. renderCount stays exactly what it was.',
+            preview: 'renderCount unchanged',
+          },
+          {
+            icon: '⌨️',
+            label: 'Now type instead',
+            explain: 'Compare: typing a character calls setValue(e.target.value) — that is a state update, so it does schedule a re-render.',
+            preview: 'value update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs FocusDemo. renderCount.current += 1 executes as a plain, synchronous mutation during this call.',
+            preview: 'renderCount.current: 1 → 2',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'The input\'s new value and the render-count text both update together — but only because typing changed state, not because the ref itself was touched.',
+            preview: '"Rendered 2 times" shown',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Clicking 'Focus the input' doesn't change what renderCount displays. Why not?"
+        options={[
+          'inputRef.current.focus() is a DOM call, not a state update — nothing tells React to re-render, so the render-count text is never re-evaluated',
+          'renderCount is protected and cannot be read after the first render',
+          "Focusing an input always resets renderCount to 0",
+        ]}
+        correctIndex={0}
+        explanation="the text showing renderCount.current is a snapshot from the last render — since focusing doesn't trigger a new render, that displayed number simply isn't re-evaluated."
+      />
+      <Quiz
+        question="If inputRef.current were replaced with useState(null) for the DOM node instead, what problem would that introduce?"
+        options={[
+          'None — they would behave identically',
+          'Nothing changes about setting it, but every time you set it (e.g. in a callback ref on mount) would trigger an extra, unnecessary re-render',
+          'useState cannot hold DOM nodes at all',
+        ]}
+        correctIndex={1}
+        explanation="useState is for values the UI needs to react to; a DOM node reference is exactly the kind of 'plumbing' value useRef exists for — using state instead would cause renders with no visual reason to happen."
+      />
 
       <RealWorld title="Autofocusing a modal's first field">
         <p>

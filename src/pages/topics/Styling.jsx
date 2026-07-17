@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -105,6 +106,64 @@ import './card.css';
       >
         <StylingDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;Toggle urgency&rdquo;</h2>
+      <StepThrough
+        title="Tracing one click of the toggle button"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Click',
+            explain: 'You click "Toggle urgency", which calls setUrgent(u => !u).',
+            preview: 'urgent update scheduled',
+          },
+          {
+            icon: '🔁',
+            label: 'Re-run',
+            explain: 'React re-runs StylingDemo. urgent is now true.',
+            preview: 'urgent === true',
+          },
+          {
+            icon: '🏷️',
+            label: 'className recomputed',
+            explain: 'The template string `card${urgent ? \' is-urgent\' : \'\'}` re-evaluates to "card is-urgent" instead of just "card".',
+            preview: 'className: "card" → "card is-urgent"',
+          },
+          {
+            icon: '🎨',
+            label: 'style object recomputed',
+            explain: 'The inline style object also recomputes: borderColor, background, and color all switch from their normal CSS variables to var(--danger) and var(--danger-soft).',
+            preview: 'colors switch to the danger palette',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React updates both the class attribute and the inline style attribute on the same DOM node in one commit — the card flips to its urgent look instantly.',
+            preview: 'card now shows "🔥 Urgent ticket"',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Why does the danger color come from var(--danger) instead of a hardcoded hex value like #b91c1c?"
+        options={[
+          "Hardcoded colors render faster",
+          "Using the CSS variable means the color automatically adapts for dark mode, since --danger is redefined differently under :root[data-theme='dark']",
+          "CSS variables are required for inline styles to work at all",
+        ]}
+        correctIndex={1}
+        explanation="every color in this project routes through a CSS custom property so a single theme attribute flip re-themes the whole app — hardcoding a hex value would look wrong (or invisible) in dark mode."
+      />
+      <Quiz
+        question="Could the class name and inline style updates in this demo get out of sync — one applied but not the other?"
+        options={[
+          "Yes, they update independently on separate renders",
+          "No — both come from the same urgent state and are computed within the same render, so they always commit together",
+          "Only if the browser is under heavy load",
+        ]}
+        correctIndex={1}
+        explanation="both the className string and the style object are derived from the same urgent boolean during the same render pass — there's no scenario where one updates without the other, because there's nothing asynchronous between them."
+      />
 
       <RealWorld title="This exact site's dark/light mode">
         <p>

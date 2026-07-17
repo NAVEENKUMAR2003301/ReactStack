@@ -2,6 +2,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -119,6 +120,60 @@ function TeamDemo() {
       >
         <TeamDemo />
       </DemoCard>
+
+      <h2>What actually happens when this tree mounts</h2>
+      <StepThrough
+        title="Tracing TeamDemo's first render"
+        steps={[
+          {
+            icon: '🔤',
+            label: 'Call',
+            explain: 'React calls TeamDemo() as a plain function. It returns JSX describing a <div> wrapping three <Avatar /> elements.',
+            preview: 'TeamDemo() → JSX tree (not yet rendered)',
+          },
+          {
+            icon: '🦊',
+            label: 'Avatar #1',
+            explain: 'React sees <Avatar emoji="🦊" name="Fox" /> is a component (capitalized), so it calls Avatar({ emoji: "🦊", name: "Fox" }).',
+            preview: 'Avatar() runs with its own props',
+          },
+          {
+            icon: '🐼',
+            label: 'Avatar #2 & #3',
+            explain: 'The same Avatar function is called again for Panda and Penguin — each call is independent, with its own props and its own returned JSX.',
+            preview: '3 separate Avatar() calls total',
+          },
+          {
+            icon: '🌳',
+            label: 'Tree assembled',
+            explain: 'React collects every returned JSX (Team\'s own markup plus all three Avatar results) into one component tree.',
+            preview: 'one tree, 4 components deep',
+          },
+          {
+            icon: '🖥️',
+            label: 'Paint',
+            explain: 'That whole tree is turned into real DOM nodes in one pass and painted to the screen.',
+            preview: 'DOM shows 3 avatars side by side',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Is Avatar a special kind of function, different from a normal JavaScript function?"
+        options={[
+          'No — it is a plain function that returns JSX; React calls it the same way it would call any function',
+          'Yes, components require a special "component" keyword',
+          'Yes, only functions defined at the top of a file can be components',
+        ]}
+        correctIndex={0}
+        explanation="the only rules are: it's a function, it returns JSX (or null), and its name is capitalized so JSX treats <Avatar /> as a call to it instead of an HTML tag."
+      />
+      <Quiz
+        question="TeamDemo renders <Avatar /> three times with different props. How many separate calls to the Avatar function does that cause?"
+        options={['One call, reused three times', 'Three separate calls, each with its own props', 'Zero — Avatar only defines the shape, it never actually runs']}
+        correctIndex={1}
+        explanation="each JSX usage of a component is an independent call to that function — three <Avatar /> tags mean Avatar() runs three separate times, once per set of props."
+      />
 
       <RealWorld title="An Instagram-style feed">
         <p>

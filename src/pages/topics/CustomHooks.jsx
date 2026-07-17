@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import RealWorld from '../../components/RealWorld';
 import Quiz from '../../components/Quiz';
@@ -137,6 +138,64 @@ function CustomHooksDemo() {
       >
         <CustomHooksDemo />
       </DemoCard>
+
+      <h2>What actually happens when you resize the window</h2>
+      <StepThrough
+        title="Tracing a browser resize event"
+        steps={[
+          {
+            icon: '🖱️',
+            label: 'Resize',
+            explain: 'You drag the window edge. The browser fires a native "resize" event on window.',
+            preview: 'window "resize" event fired',
+          },
+          {
+            icon: '🪝',
+            label: 'Hook\'s listener runs',
+            explain: 'The listener registered inside useWindowWidth\'s effect (handleResize) runs, calling setWidth(window.innerWidth).',
+            preview: 'width update scheduled, inside the hook',
+          },
+          {
+            icon: '🔁',
+            label: 'Caller re-renders',
+            explain: 'That state lives inside useWindowWidth, but React re-renders whichever component called the hook — here, CustomHooksDemo — not some hidden internal component.',
+            preview: 'CustomHooksDemo() re-runs',
+          },
+          {
+            icon: '📤',
+            label: 'New value returned',
+            explain: 'useWindowWidth() runs again as part of that re-render and returns the fresh width value, exactly like useState would.',
+            preview: 'width === 1024 (new value)',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'The text showing "{width}px" updates in the DOM — the same commit step as any other state-driven update.',
+            preview: '"1024px — try resizing"',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="Does calling setWidth inside useWindowWidth re-render useWindowWidth itself, or the component that called it?"
+        options={[
+          "It re-renders CustomHooksDemo, the component that called useWindowWidth() — hooks don't have a separate render identity of their own",
+          "It re-renders only an internal, hidden component",
+          "It has no effect until the page is refreshed",
+        ]}
+        correctIndex={0}
+        explanation="a custom hook's state is really just useState called inside a regular function — React always re-renders the component that owns that render call, not the hook function itself."
+      />
+      <Quiz
+        question="What's the benefit of extracting useOnlineStatus and useWindowWidth as hooks instead of writing the same useState + useEffect pair inline in every component that needs them?"
+        options={[
+          "It makes the code run faster",
+          "It gives the logic one place to live, test, and fix — every consumer just calls the hook instead of duplicating the same subscribe/cleanup code",
+          "Hooks are required by React for any useEffect usage",
+        ]}
+        correctIndex={1}
+        explanation="the whole point of custom hooks is deduplication and a stable API — if the browser's event name ever changed, you'd fix it once inside the hook instead of hunting down every copy-pasted usage."
+      />
 
       <RealWorld title="Persisting a shopping cart across page reloads">
         <p>

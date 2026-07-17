@@ -3,6 +3,7 @@ import PageHeader from '../../components/PageHeader';
 import PageNavFooter from '../../components/PageNavFooter';
 import CodeBlock from '../../components/CodeBlock';
 import DemoCard from '../../components/DemoCard';
+import StepThrough from '../../components/StepThrough';
 import Callout from '../../components/Callout';
 import FlowDiagram from '../../components/FlowDiagram';
 import RealWorld from '../../components/RealWorld';
@@ -133,6 +134,64 @@ function CartDemo() {
       >
         <CartDemo />
       </DemoCard>
+
+      <h2>What actually happens when you click &ldquo;+ Add&rdquo;</h2>
+      <StepThrough
+        title="Tracing one dispatched action"
+        steps={[
+          {
+            icon: '👆',
+            label: 'Dispatch',
+            explain: 'You click "+ Add", which calls dispatch({ type: \'add\', price: 8 }) — this hands React an action object, not a new state value.',
+            preview: 'action queued: { type: "add", price: 8 }',
+          },
+          {
+            icon: '📜',
+            label: 'Reducer called',
+            explain: 'React calls cartReducer(currentState, action) — currentState is { items: 0, total: 0 }, action is what you just dispatched.',
+            preview: 'cartReducer({ items: 0, total: 0 }, { type: "add", price: 8 })',
+          },
+          {
+            icon: '🔀',
+            label: 'Switch matches',
+            explain: 'Inside the reducer, action.type === "add" matches that case, which computes and returns a brand-new state object — never mutating the old one.',
+            preview: 'returns { items: 1, total: 8 }',
+          },
+          {
+            icon: '🔁',
+            label: 'Component re-renders',
+            explain: 'useReducer gives CartDemo that new object as cart on this render — dispatch itself never touched the UI directly.',
+            preview: 'cart === { items: 1, total: 8 }',
+          },
+          {
+            icon: '🖥️',
+            label: 'Commit',
+            explain: 'React updates the summary text and total on screen to reflect the reducer\'s output.',
+            preview: '"🛒 1 item · $8"',
+          },
+        ]}
+      />
+
+      <Quiz
+        question="After dispatch({ type: 'add', price: 8 }) runs, has cart changed yet, in that same line of code?"
+        options={[
+          "Yes, cart is immediately the new object",
+          "No — dispatch only queues the action; cart holds the new value once CartDemo re-renders and useReducer returns it",
+          "cart is deleted and recreated from scratch",
+        ]}
+        correctIndex={1}
+        explanation="dispatch works like a state setter — it schedules work (calling the reducer, then re-rendering) rather than mutating anything synchronously in place."
+      />
+      <Quiz
+        question="What would go wrong if cartReducer's 'add' case did state.items++ instead of returning a new object?"
+        options={[
+          "Nothing, mutating is equally valid",
+          "Mutating the existing state object breaks React's ability to detect that state changed, since it often compares old and new state by reference",
+          "The switch statement would fail to compile",
+        ]}
+        correctIndex={1}
+        explanation="reducers are expected to be pure and to return new state rather than mutate the old object — this is exactly the same reference-equality concern as with useState, just inside a reducer instead."
+      />
 
       <RealWorld title="A multi-step checkout flow">
         <p>
